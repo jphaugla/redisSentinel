@@ -1,0 +1,2 @@
+# redisSentinel
+Test Redis Sentinel
