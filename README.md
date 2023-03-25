@@ -7,8 +7,15 @@
 - [GitHub deploying this java application with redis enterprise on AWS](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)
 
 ### Deploy redis enterprise
-This github is about using redis sentinel with Redis Enterprise.  To deploy redis enterprise on AWS, use [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)
-In this github, a database is also created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.
+This github is about using redis sentinel with Redis Enterprise.  Within the code is a [Jedis spring sentinel connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/config/RedisConfig.java) and a [Jedis non-spring jedis connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/service/RediSearchService.java#L76).  The non-spring connection is used for doing the redisjson commands.  To deploy redis enterprise on AWS, use [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)
+In this github, a database is also created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
+
+### Prepare database
+Need to create an ACL for the database to be used as the login for the application.  The following steps cover doing this:
+* [Configure ACLs](https://docs.redis.com/latest/rs/security/access-control/configure-acl/)
+* Create Roles](https://docs.redis.com/latest/rs/security/access-control/create-roles/)
+* [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/)
+
 ### Install Java
 #### on redhat
   * install java 
@@ -43,7 +50,23 @@ mvn clean package
 
 ### Set Environment and Run
 edit the [app.env](../scripts/app.env) appropriately for desires and environment
+NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
 ```bash
 source ../scripts/app.env
 java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
 ```
+
+### What happens
+When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinal masters is resolved:
+```bash
+2023-03-24T16:48:13.771-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
+2023-03-24T16:48:14.010-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
+2023-03-24T16:48:14.015-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
+2023-03-24T16:48:14.094-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : Init RediSearchService
+2023-03-24T16:48:14.095-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : redisPassword is jasonrocks
+2023-03-24T16:48:14.097-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
+2023-03-24T16:48:14.252-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
+2023-03-24T16:48:14.253-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
+2023-03-24T16:48:14.254-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : looging in using username jph
+``` 
+
