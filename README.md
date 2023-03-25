@@ -55,6 +55,12 @@ NOTE: enter the database username and password created in the [Manage Users](htt
 source ../scripts/app.env
 java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
 ```
+#### To run, use the scripts directory 
+```bash
+cd scripts
+./postTicker.sh
+./getKey.sh
+```
 
 ### What happens
 When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinal masters is resolved:
