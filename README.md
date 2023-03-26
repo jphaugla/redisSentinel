@@ -1,5 +1,8 @@
-# RediSentinel with Jedis
+# RediSentinel with Jedis and node.js
 
+## Where is node.js (ioredis)
+
+look in subdirectory called ioredis.  There is a README.md there as well
 
 ## Important Links/Notes
 - [Jedis and Spring version](https://stackoverflow.com/questions/72194259/is-it-possible-to-use-the-newest-jedis-in-spring-project)
@@ -49,7 +52,7 @@ mvn clean package
 ```
 
 ### Set Environment and Run
-edit the [app.env](../scripts/app.env) appropriately for desires and environment
+edit the [app.env](scripts/app.env) appropriately for desires and environment
 NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
 #### To get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
 
@@ -79,7 +82,7 @@ NOTE: enter the database username and password created in the [Manage Users](htt
 '''
 
 ```bash
-source ../scripts/app.env
+source scripts/app.env
 java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
 ```
 #### To run, use the scripts directory 
