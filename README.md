@@ -51,6 +51,33 @@ mvn clean package
 ### Set Environment and Run
 edit the [app.env](../scripts/app.env) appropriately for desires and environment
 NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
+#### To get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
+
+```bash
+[root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
+127.0.0.1:8001> SENTINEL masters
+1) 1) “name”
+  2) “TestDB@internal”
+  3) “ip”
+  4) “172.16.32.11"
+  5) “port”
+  6) “12000"
+  7) “flags”
+  8) “master”
+  9) “num-other-sentinels”
+  10) “0"
+2) 1) “name”
+  2) “TestDB”
+  3) “ip”
+  4) “3.239.252.137"
+  5) “port”
+  6) “12000"
+  7) “flags”
+  8) “master”
+  9) “num-other-sentinels”
+  10) “0"
+'''
+
 ```bash
 source ../scripts/app.env
 java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
