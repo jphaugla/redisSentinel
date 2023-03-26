@@ -3,6 +3,7 @@
 
 ## Important Links/Notes
 - [Redis with Node.js (ioredis)](https://docs.redis.com/latest/rs/references/client_references/client_ioredis/)
+- [Developer Getting Started with Node and Redis (ioredis)](https://developer.redis.com/develop/node/gettingstarted/)
 
 ### Deploy redis enterprise
 [see README.md in home directory](../README.md)
