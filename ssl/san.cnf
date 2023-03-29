@@ -1,0 +1,24 @@
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+x509_extensions = v3_req
+prompt = no
+[ req_distinguished_name ]
+countryName                 = US
+stateOrProvinceName         = Minnesota
+localityName               = Minneapolis
+organizationName           = Redis
+commonName                 = jphterra2.demo-rlec.redislabs.com
+[ req_ext ]
+subjectAltName = @alt_names
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1   = int.jphterra2.demo-rlec.redislabs.com
+DNS.2   = *.int.jphterra2.demo-rlec.redislabs.com
+DNS.3   = jphterra2.demo-rlec.redislabs.com
+DNS.4   = *.jphterra2.demo-rlec.redislabs.com
+IP.1    = 13.52.139.133
+IP.2    = 52.53.80.177
+IP.3    = 54.241.219.233
