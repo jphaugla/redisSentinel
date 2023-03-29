@@ -41,7 +41,7 @@ In [this github]((https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a
 ## Prepare database
 Need to create an ACL for the database to be used as the login for the application.  The following steps cover doing this:
 * [Configure ACLs](https://docs.redis.com/latest/rs/security/access-control/configure-acl/)
-* Create Roles](https://docs.redis.com/latest/rs/security/access-control/create-roles/)
+* [Create Roles](https://docs.redis.com/latest/rs/security/access-control/create-roles/)
 * [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/)
 
 ## Verify sentinel 
