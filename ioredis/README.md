@@ -3,6 +3,7 @@
 
 ## Important Links/Notes
 - [Redis with Node.js (ioredis)](https://docs.redis.com/latest/rs/references/client_references/client_ioredis/)
+- [Dockerizing node.js app](https://nodejs.org/en/docs/guides/nodejs-docker-webapp)
 - [Developer Getting Started with Node and Redis (ioredis)](https://developer.redis.com/develop/node/gettingstarted/)
 
 ## Deploy on redis enterprise or docker compose
