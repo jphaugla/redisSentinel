@@ -60,7 +60,7 @@ public class RediSearchService {
     @PostConstruct
     private void init() throws URISyntaxException {
         log.info("Init RediSearchService");
-        redisHost = env.getProperty("redis.host", "localhost");
+        redisHost = env.getProperty("spring.redis.sentinel_host", "localhost");
         redisPort = Integer.parseInt(env.getProperty("redis.port", "6379"));
         writeJson = env.getProperty("write_json", "false");
         redisPassword = env.getProperty("spring.redis.password", "");
@@ -92,7 +92,8 @@ public class RediSearchService {
             jedisPooled = new JedisPooled(hostAndPort.getHost(), hostAndPort.getPort(),
                     redis_username, redisPassword);
         } else if (redisPassword != null && !(redisPassword.isEmpty())) {
-            String redisURL = "redis://:" + redisPassword + '@' + redisHost + ':' + String.valueOf(redisPort);
+            String redisURL = "redis://:" + redisPassword + '@' + hostAndPort.getHost() + ':' +
+                    String.valueOf(hostAndPort.getPort());
             log.info("redisURL is " + redisURL);
             jedisPooled = new JedisPooled(redisURL);
         } else {

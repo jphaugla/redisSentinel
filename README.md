@@ -5,7 +5,9 @@
 - [Overview](#overview)
 - [Where is ioredis](#ioredis)
 - [Important Links](#important-linksnotes)
-- [Deploy Redis Enterprise](#deploy-redis-enterprise)
+- [Deploy redis](#deploy-redis)
+  - [Deploy on docker](#deploy-on-docker)
+  - [Deploy Redis Enterprise](#deploy-redis-enterprise)
 - [Prepare database](#prepare-database)
 - [Verify Sentinel](#verify-sentinel)
 - [Jedis code](#jedis-code)
@@ -34,8 +36,14 @@ look in subdirectory called ioredis.  There is a README.md there as well
 - [Redis Sentinel](https://redis.io/docs/management/sentinel/)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
+## Deploy redis
+### Deploy on Docker
+may need to adjust environment variables in the docker compose file for the environment
+```bash
+docker-compose up -d
+```
 
-## Deploy redis enterprise
+### Deploy redis enterprise
 In [this github]((https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
 
 ## Prepare database
@@ -108,7 +116,7 @@ mvn clean package
 ```
 
 ### Run
-edit the [app.env](scripts/app.env) appropriately for desires and environment
+edit the [app.env](scripts/app.env) appropriately for desires and environment.  Note example values for docker or redis enterprise
 NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
 ```bash
 source scripts/app.env
