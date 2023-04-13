@@ -4,7 +4,7 @@ async function ioredisDemo() {
   try {
     console.log(process.env);
     const client = new Redis({
-    sentinels: [{ host: process.env.REDIS_HOST,  port: process.env.SENTINEL_PORT }],
+    sentinels: [{ host: process.env.SENTINEL_HOST,  port: process.env.SENTINEL_PORT }],
     name: process.env.SENTINEL_MASTER,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD

@@ -44,7 +44,7 @@ look in subdirectory called ioredis.  There is a README.md there as well
 * To add TLS, look at additional parameters in [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
 * To add TLS to redis-stack, follow same technique used to the password and define the ACL
   * These are just setting variables in the redis.conf file
-  * TLS has a set of redis.conf variables neeeded as well
+  * TLS has a set of redis.conf variables needed as well
 * must run the application under docker compose because of sentinel networking
   * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
 ```bash
@@ -65,7 +65,11 @@ Need to create an ACL for the database to be used as the login for the applicati
 Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
 
 ```bash
+# using redis enterprise
 [root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
+# using docker
+# using docker
+[root@ip-172-16-32-11 ~]# redis-cli -p 26379 -h localhost
 127.0.0.1:8001> SENTINEL masters
 1) 1) “name”
   2) “TestDB@internal”
@@ -87,7 +91,7 @@ Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and
   8) “master”
   9) “num-other-sentinels”
   10) “0"
-'''
+```
 
 ## Jedis code
 This github is about using redis sentinel with Redis Enterprise.  Within the code is a [Jedis spring sentinel connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/config/RedisConfig.java) and a [Jedis non-spring jedis connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/service/RediSearchService.java#L76).  The non-spring connection is used for doing the redisjson commands.  To deploy redis enterprise on AWS, use [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)

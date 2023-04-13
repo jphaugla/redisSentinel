@@ -5,16 +5,29 @@
 - [Redis with Node.js (ioredis)](https://docs.redis.com/latest/rs/references/client_references/client_ioredis/)
 - [Developer Getting Started with Node and Redis (ioredis)](https://developer.redis.com/develop/node/gettingstarted/)
 
+## Deploy on redis enterprise or docker compose
+### Deploy on Docker
+* may need to adjust environment variables in the docker compose file for the environment
+* ACL is also set in the Docker environment variable section
+* To add TLS, look at additional parameters in [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
+* To add TLS to redis-stack, follow same technique used to the password and define the ACL
+    * These are just setting variables in the redis.conf file
+    * TLS has a set of redis.conf variables needed as well
+* must run the application under docker compose because of sentinel networking
+    * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
+```bash
+docker-compose build 
+docker-compose up -d
+```
 ### Deploy redis enterprise
 [see README.md in home directory](../README.md)
-
-### Set Environment and Run
-edit the [app.env](../scripts/app.env) appropriately for desires and environment
-NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
 #### To get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
 
 ```bash
+# using redis enterprise
 [root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
+# using docker
+[root@ip-172-16-32-11 ~]# redis-cli -p 26379 -h localhost
 127.0.0.1:8001> SENTINEL masters
 1) 1) “name”
   2) “TestDB@internal”
@@ -36,7 +49,13 @@ NOTE: enter the database username and password created in the [Manage Users](htt
   8) “master”
   9) “num-other-sentinels”
   10) “0"
-'''
+```
+
+#### Set Environment and Run
+this is to run against redis enterprise
+edit the [app.env](../scripts/app.env) appropriately for desires and environment
+NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
+
 
 ```bash
 source ../scripts/app.env
