@@ -42,8 +42,7 @@ public class RediSearchService {
 
     private static final String Prefix="ticker:";
 
-    String redisHost = "localhost"; // default name
-    int redisPort = 6379;
+    String redisHost = "localhost";
     String redisPassword = "";
     String writeJson = "false";
 
@@ -61,7 +60,6 @@ public class RediSearchService {
     private void init() throws URISyntaxException {
         log.info("Init RediSearchService");
         redisHost = env.getProperty("spring.redis.sentinel_host", "localhost");
-        redisPort = Integer.parseInt(env.getProperty("redis.port", "6379"));
         writeJson = env.getProperty("write_json", "false");
         redisPassword = env.getProperty("spring.redis.password", "");
         sentinel_port = env.getProperty("spring.redis.sentinel_port", "8001");
@@ -88,7 +86,9 @@ public class RediSearchService {
         HostAndPort hostAndPort = jedisSentinelPool.getCurrentHostMaster();
         // HostAndPort hostAndPort = new HostAndPort(redisHost, redisPort);
         if (redis_username!= null && !(redis_username.isEmpty())) {
-            log.info( "looging in using username " + redis_username);
+            log.info( "logging in using username " + redis_username + " password " + redisPassword
+                      + " redis host " + hostAndPort.getHost()
+                    + " redis port " + String.valueOf(hostAndPort.getPort()));
             jedisPooled = new JedisPooled(hostAndPort.getHost(), hostAndPort.getPort(),
                     redis_username, redisPassword);
         } else if (redisPassword != null && !(redisPassword.isEmpty())) {

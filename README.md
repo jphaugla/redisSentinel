@@ -36,10 +36,19 @@ look in subdirectory called ioredis.  There is a README.md there as well
 - [Redis Sentinel](https://redis.io/docs/management/sentinel/)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
+- [bitnami sentinal environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
 ## Deploy redis
 ### Deploy on Docker
-may need to adjust environment variables in the docker compose file for the environment
+* may need to adjust environment variables in the docker compose file for the environment
+* ACL is also set in the Docker environment variable section
+* To add TLS, look at additional parameters in [bitnami sentinal environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
+* To add TLS to redis-stack, follow same technique used to the password and define the ACL
+  * These are just setting variables in the redis.conf file
+  * TLS has a set of redis.conf variables neeeded as well
+* must run the application under docker compose because of sentinel networking
+  * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
 ```bash
+docker-compose build 
 docker-compose up -d
 ```
 

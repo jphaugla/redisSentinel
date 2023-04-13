@@ -39,7 +39,6 @@ public class RedisConfig {
         clientConfig.usePooling().poolConfig(poolConfig);
         JedisConnectionFactory jedisConnectionFactory;
         String host = env.getProperty("spring.redis.sentinel_host");
-        Integer port = Integer.parseInt(env.getProperty("spring.redis.port"));
         Integer sentinel_port = Integer.parseInt(env.getProperty("spring.redis.sentinel_port"));
         String sentinel_master = env.getProperty("spring.redis.sentinel_master");
         String redis_password = env.getProperty("spring.redis.password");
