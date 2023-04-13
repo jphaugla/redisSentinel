@@ -36,12 +36,12 @@ look in subdirectory called ioredis.  There is a README.md there as well
 - [Redis Sentinel](https://redis.io/docs/management/sentinel/)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
-- [bitnami sentinal environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
+- [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
 ## Deploy redis
 ### Deploy on Docker
 * may need to adjust environment variables in the docker compose file for the environment
 * ACL is also set in the Docker environment variable section
-* To add TLS, look at additional parameters in [bitnami sentinal environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
+* To add TLS, look at additional parameters in [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
 * To add TLS to redis-stack, follow same technique used to the password and define the ACL
   * These are just setting variables in the redis.conf file
   * TLS has a set of redis.conf variables neeeded as well
@@ -62,7 +62,7 @@ Need to create an ACL for the database to be used as the login for the applicati
 * [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/)
 
 ## Verify sentinel 
-Get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
+Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
 
 ```bash
 [root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
@@ -140,7 +140,7 @@ cd scripts
 ```
 
 ### What happens
-When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinal masters is resolved:
+When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinel masters is resolved:
 ```bash
 2023-03-24T16:48:13.771-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
 2023-03-24T16:48:14.010-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
