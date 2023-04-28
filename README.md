@@ -1,10 +1,10 @@
-# RediSentinel with Jedis and node.js
+# RediSentinel and TLS with multiple client libraries
 
 ## Outline
 
 - [Overview](#overview)
-- [Where is ioredis](#ioredis)
 - [Important Links](#important-linksnotes)
+- [Deploy git](#deploy-github)
 - [Deploy redis](#deploy-redis)
   - [Deploy on docker](#deploy-on-docker)
   - [Deploy Redis Enterprise](#deploy-redis-enterprise)
@@ -17,46 +17,74 @@
   - [Compile application](#compile-application)
   - [Run](#run)
   - [What happens](#what-happens)
- - [TLS](#tls)
+- [TLS](#tls)
+  - [Redis Enterprise Server steps](#redis-enterprise) 
 
 ## Overview
-This github shows code to connect to redis enterprise using sentinel with ioredis and jedis.  Links provided in this github, show redisson sentinel with TLS as well.  Additionally, additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.
+This github shows code to connect to redis enterprise and redis-stack using sentinel and/or TLS.  Links provided in this github, show redisson sentinel with TLS as well.  Additionally, additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.  Redis enterprise as a standalone redis can be used or a docker solution based on redis stack.   Each client tool is in a separate subdirectory with a separate README.md as the main directory holds all the docker-compose files.
 
 
-## ioredis
-Where is node.js (ioredis)
-look in subdirectory called ioredis.  There is a README.md there as well
+## Deploy github
+```bash
+get clone https://github.com/jphaugla/redisSentinel.git
+```
 
 ## Important Links
-- [Redisson github including sentinel steps](https://github.com/jphaugla/Redis-Digital-Banking-redisson/)
 - [GitHub deploying this java application with redis enterprise on AWS](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)
 - [Generate a self-signed SSL certificate for IP address](https://medium.com/@antelle/how-to-generate-a-self-signed-ssl-certificate-for-an-ip-address-f0dd8dddf754)
 - [Redis CLI with tls](https://redis.io/docs/ui/cli)
+- [TLS with redis](https://redis.io/docs/management/security/encryption/)
+- [TLS with redis docker](https://blog.shahid.codes/setup-redis-with-tls-using-docker)
+- [Enabling Secure Connections to REdis Enterprise](https://redis.com/blog/enabling-secure-connections-to-redis-enterprise/)
 - [SSL/TLS with Redis Enterprise blog](https://tgrall.github.io/blog/2020/01/02/how-to-use-ssl-slash-tls-with-redis-enterprise/)
+- [Where to install redis certiciate-springboot](https://www.appsloveworld.com/springboot/100/95/where-to-install-redis-certificate)
+- [mTLS/TLS with Lettuce](https://stackoverflow.com/questions/63177538/mtls-tls-redis-6-issues-java)
+- [Hostname must match for TLS](https://stackoverflow.com/questions/3093112/certificateexception-no-name-matching-ssl-someurl-de-found)
+- [Got Jedis SSL code from this link](https://redis.io/docs/clients/java/)
+- [Use SSL/TLS wiith Redis Enterprise](https://developer.redis.com/howtos/security/)
 - [Redis Sentinel](https://redis.io/docs/management/sentinel/)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
-- [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
+- [Redisson github including sentinel steps](https://github.com/jphaugla/Redis-Digital-Banking-redisson/)
 ## Deploy redis
 ### Deploy on Docker
 * may need to adjust environment variables in the docker compose file for the environment
 * ACL is also set in the Docker environment variable section
-* To add TLS, look at additional parameters in [bitnami sentinel environment variables](https://hub.docker.com/r/bitnami/redis-sentinel/)
-* To add TLS to redis-stack, follow same technique used to the password and define the ACL
-  * These are just setting variables in the redis.conf file
-  * TLS has a set of redis.conf variables needed as well
-* must run the application under docker compose because of sentinel networking
-  * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
+* TLS is built into redis-stack so this was easy enough
+
+#### Deploy redis with TLS
+* Download the latest tool from redis to generate the certificates
+* Start redis using docker-compose file without TLS
+* Build the certificates in the redis docker image
+  * since the target directory for the certificates is docker volume mounted, the generated files will be available in the github directory as well
+  * these certificates will be needed by the running application.  Each application README.md will have instructions to leverage the certificates by the application
 ```bash
-docker-compose build 
-docker-compose up -d
+   cd redisSentinel/scripts
+   ./get-gen-test-certs.sh
+   cd ..
+   docker-compose -f docker-compose.no-tls.yml up -d 
+   docker exec -it redis bash
+#  in the docker container for redis
+   apt-get update
+   apt-get install openssl
+   cd scripts
+   ./gen-test-certs.sh
+   exit
+#  back in github directory
+   docker-compose -f docker-compose.no-tls.yml down
+```
+
+### Verify using redis-cli
+```bash
+cd redisSentinel
+./redis-cli-redis.sh
 ```
 
 ### Deploy redis enterprise
 In [this github]((https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
 
 ## Prepare database
-Need to create an ACL for the database to be used as the login for the application.  The following steps cover doing this:
+Need to create an ACL in redis enterprisefor the database to be used as the login for the application.  The following steps cover doing this:
 * [Configure ACLs](https://docs.redis.com/latest/rs/security/access-control/configure-acl/)
 * [Create Roles](https://docs.redis.com/latest/rs/security/access-control/create-roles/)
 * [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/)
@@ -162,7 +190,7 @@ Using sentinel and TLS with Redis Enterprise becomes a bit more difficult.  The 
 
 The techniques described in [generate a self-signed SSL certificate for IP address github](https://medium.com/@antelle/how-to-generate-a-self-signed-ssl-certificate-for-an-ip-address-f0dd8dddf754) are used below.  Review the link for more in-depth explanations.
 
-### Redis Server steps
+### Redis Enterprise steps
 Log into a redis enterprise node
 * Check the current key using openssl to get the information for the cnf file running this on redis server
 ```bash
@@ -198,7 +226,15 @@ Verify the sentinel service has the IPs in the certificate
 ```bash
  openssl s_client -connect jphterra2.demo-rlec.redislabs.com:8001 </dev/null 2>/dev/null | openssl x509 -noout -text | grep IP
 ```
+
+### Redis OSS steps
+
+#### Generate certs
+```bash
+./get-gen-test-certs.sh
+./gen-tests-certs.sh
+```
  
-go back to the redisson github for the testing of TLS with REdisson
+go back to the redisson github for the testing of TLS with Redisson
 
 copy this generated cert key at /opt/redislabs/bin/temp/cert.key to the connecting client in the redisson github directory
