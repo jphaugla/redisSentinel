@@ -3,23 +3,12 @@
 ## Outline
 
 - [Overview](#overview)
-- [Where is ioredis](#ioredis)
-- [Important Links](#important-linksnotes)
-- [Deploy redis](#deploy-redis)
-  - [Deploy on docker](#deploy-on-docker)
-  - [Deploy Redis Enterprise](#deploy-redis-enterprise)
-- [Prepare database](#prepare-database)
-- [Verify Sentinel](#verify-sentinel)
 - [Jedis code](#jedis-code)
-  - [Install java](#install-java)
-    - [redhat](#redhat)
-    - [ubuntu](#ubuntu)
-  - [Compile application](#compile-application)
-  - [Run](#run)
-  - [What happens](#what-happens)
-- [TLS](#tls)
-  - [Redis Enterprise Server steps](#redis-enterprise) 
-
+- [Generate certs](#generate-certs)
+- [Create trust and key store](#create-trust-and-key-store)
+- [Build docker application](#build-docker-application)
+- [Run full application](#run-full-application)
+- [Shutdown](#shutdown)
 ## Overview
 This github shows simple jedis code (not spring version) to connect to redis enterprise using TLS
 
@@ -49,12 +38,12 @@ export KEYSTORE_PASSWORD=jasonrocks
 ./generatekeystore.sh
 ./importkey.sh
 ```
-## Build the docker application
+## Build docker application
 ```bash
 docker-compose -f docker-compose-jedis-app.yml
 ```
 
-## Run the full application
+## Run full application
 ```bash
 # back to parent directory
 cd ..
@@ -62,7 +51,7 @@ docker-compose -f docker-compose.tls.yml -f simple-jedis/docker-compose-jedis-ap
 docker logs jedis-app
 ```
 jedis app logs should say *bar*
-
-
-
- 
+## Shutdown
+```bash
+docker-compose -f docker-compose.tls.yml -f simple-jedis/docker-compose-jedis-app.yml down
+```
