@@ -35,7 +35,7 @@ get clone https://github.com/jphaugla/redisSentinel.git
 - [Redis CLI with tls](https://redis.io/docs/ui/cli)
 - [TLS with redis](https://redis.io/docs/management/security/encryption/)
 - [TLS with redis docker](https://blog.shahid.codes/setup-redis-with-tls-using-docker)
-- [Enabling Secure Connections to REdis Enterprise](https://redis.com/blog/enabling-secure-connections-to-redis-enterprise/)
+- [Enabling Secure Connections to Redis Enterprise](https://redis.com/blog/enabling-secure-connections-to-redis-enterprise/)
 - [SSL/TLS with Redis Enterprise blog](https://tgrall.github.io/blog/2020/01/02/how-to-use-ssl-slash-tls-with-redis-enterprise/)
 - [Where to install redis certiciate-springboot](https://www.appsloveworld.com/springboot/100/95/where-to-install-redis-certificate)
 - [mTLS/TLS with Lettuce](https://stackoverflow.com/questions/63177538/mtls-tls-redis-6-issues-java)
@@ -81,13 +81,64 @@ cd redisSentinel
 ```
 
 ### Deploy redis enterprise
-In [this github]((https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
+* In [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
+* This readme is following the steps from this [TLS with Redis Enterprise github](https://developer.redis.com/howtos/security/)
 
-## Prepare database
-Need to create an ACL in redis enterprisefor the database to be used as the login for the application.  The following steps cover doing this:
+#### Deploy redis enterprise database without TLS
+using [redis create database documentation](https://docs.redis.com/latest/rs/databases/create/), create a database.  NOTES:  don't set up for TLS yet, set port to 12000 for simplicity, add a password to the database
+#### Verify access to the database
+* edit redis-cli-re-no-tls.sh for any differences
+* verify connectivity
+```bash
+./redis-cli-re-no-tls.sh
+set jason funny
+```
+
+#### Prepare database
+Need to create an ACL in redis enterprise for the database to be used as the login (sample code uses un=jph pw=jasonrocks) for the application.  The following steps cover doing this:
 * [Configure ACLs](https://docs.redis.com/latest/rs/security/access-control/configure-acl/)
 * [Create Roles](https://docs.redis.com/latest/rs/security/access-control/create-roles/)
 * [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/)
+* steps used
+![](images/create_role.png)
+![](images/create_user.png)
+
+#### Verify connectivity to database
+```bash
+./redis-cli-re-no-tls-un.sh
+```
+#### Setup TLS for redis enterprise
+* get the proxy cert from redis-enterprise
+  * it is located in /etc/opt/redislabs/proxy_cert.pem
+```bash
+cd re_keys/tls
+# this is assuming redis enterprise was built using above terraform script
+scp -i aws_pem_file ubuntu@52.9.197.238:/etc/opt/redislabs/proxy_cert.pem .
+./gen_client_cert.sh
+# copy the generated cert file
+pbcopy < client_cert_app_001.pem
+```
+##### Go to the Redis Enterprise Admin Web Console and enable TLS on your database:
+
+* Edit the database configuration
+* Check TLS
+* Select "Require TLS for All communications"
+* Check "Enforce client authentication"
+* Paste the certificate in the text area
+* Click the Save button to save the certificate
+* Click the Update button to save the configuration.
+![](images/re-tls.png)
+
+#### Verify no long connect without TLS
+```bash
+./redis-cli-re-no-tls-un.sh
+```
+
+#### Verify can connect with TLS
+NOTE:  stunnel is no longer needed so use format in  redis-cli-re-tls.sh
+```bash
+./redis-cli-re-tls.sh
+```
 
 ## Verify sentinel 
 Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information

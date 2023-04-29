@@ -10,7 +10,7 @@ import java.security.KeyStore;
 public class jedisTLSTest {
 
     public static void main(String[] args) throws GeneralSecurityException, IOException {
-        HostAndPort address = new HostAndPort("redis", 6379);
+
 
         String trust_store = System.getenv("TRUSTSTORE_LOCATION");
         String key_store = System.getenv("KEYSTORE_LOCATION");
@@ -18,6 +18,9 @@ public class jedisTLSTest {
         String key_store_pw = System.getenv("KEYSTORE_PASSWORD");
         String redis_username = System.getenv("REDIS_USERNAME");
         String redis_pw = System.getenv("REDIS_PASSWORD");
+        String redis_host = System.getenv("REDIS_HOST");
+        String redis_port = System.getenv("REDIS_PORT");
+        HostAndPort address = new HostAndPort(redis_host, Integer.parseInt(redis_port));
         SSLSocketFactory sslFactory = createSslSocketFactory(
                 trust_store,
                 trust_store_pw, // use the password you specified for keytool command
