@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+
+  jedis-app:
+    image: jedis-app
+    container_name: jedis-app
+    hostname: jedis-app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=jasonrocks
+      - TRUSTSTORE_PASSWORD=jasonrocks
+      - TRUSTSTORE_LOCATION=/usr/app/tls/client-truststore.jks
+      - KEYSTORE_PASSWORD=jasonrocks
+      - KEYSTORE_LOCATION=/usr/app/tls/client-keystore.p12
+      - REDIS_USERNAME=jph
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    volumes:
+      - "./src/:/app"
+      - "./data/:/data"
