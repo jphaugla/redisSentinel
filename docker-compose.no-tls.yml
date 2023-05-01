@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis
+    hostname: redis
+    environment:
+      REDIS_ARGS: "--port 6379 --requirepass jasonrocks --aclfile /scripts/users.acl"
+    ports:
+      - '6379:6379'
+      - '8001:8001'
+    volumes:
+      - ./redis_data:/data
+      - ./scripts:/scripts
