@@ -7,9 +7,9 @@ services:
     container_name: jedis-app
     hostname: jedis-app
     environment:
-      - REDIS_HOST=redis-12000.jphterra2.demo-rlec.redislabs.com
-      - REDIS_PORT=12000
-      - REDIS_PASSWORD=jasonrocks
+      - REDIS_HOST=redis-10096.jphterra1.demo-rlec.redislabs.com
+      - REDIS_PORT=10096
+      - REDIS_PASSWORD=redis123
       - TRUSTSTORE_PASSWORD=jasonrocks
       - TRUSTSTORE_LOCATION=/usr/app/tls/client-truststore.jks
       - KEYSTORE_PASSWORD=jasonrocks

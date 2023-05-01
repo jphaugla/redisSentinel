@@ -84,7 +84,9 @@ docker-compose -f docker-compose.tls.yml up -d
 ```
 
 ### Verify using redis-cli
+edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
+source scripts/app.env
 cd redisSentinel
 ./redis-cli-redis.sh
 ```
@@ -102,8 +104,9 @@ Go back to your application and get it connected to redis stack!
 
 #### Deploy redis enterprise database without TLS
 using [redis create database documentation](https://docs.redis.com/latest/rs/databases/create/), create a database.  NOTES:  don't set up for TLS yet, set port to 12000 for simplicity, add a password to the database
+edit scripts/app.env to have redis enterprise  as REDIS_HOST and 12000 as REDIS_PORT
 #### Verify access to the database
-* edit redis-cli-re-no-tls.sh for any differences
+* edit scripts/app.env for any differences
 * verify connectivity
 ```bash
 ./redis-cli-re-no-tls.sh
@@ -153,8 +156,10 @@ pbcopy < client_cert_app_001.pem
 #### Verify can connect with TLS
 NOTE:  stunnel is no longer needed so use format in  redis-cli-re-tls.sh
 ```bash
+cd redisSentinel
 ./redis-cli-re-tls.sh
 ```
+Can now go back to chosen application to connect the application to redis enterprise with TLS
 
 ## Redis Enterprise with TLS
 Redis Enterprise does not need any configuration changes to work with Sentinel. However, using sentinel and TLS with Redis Enterprise becomes a bit more difficult.  The given proxy key must be replaced with a proxy key that allows traffic through the redis enterprise endpoint as well as the redis enterprise IPs.  This is needed because when sentinel (actually the Redis Enterprise Discover service) retrieves the redis enterprise server, the IPs and not the DNS name is retrieved.

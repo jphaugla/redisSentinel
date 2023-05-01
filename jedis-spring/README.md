@@ -67,29 +67,38 @@ see parent directory [README.md deploy on redis enterprise](https://github.com/j
 
 ### Create trust and key store
 The java application needs a keystore and truststore for TLS.  This creates the keystore and trustfile using the keys files created in parent directory
+Edit scripts/app.env for this environment
 ```bash
 cd redisSentinel/jedis-spring
-source app.env
+source scripts/app.env
 ./generatekeystore-RE.sh
 ./importkey-RE.sh
 ```
 ### Use Docker for application
 #### Build docker application
+edit  docker-compose-jedis-app-re.yml for environment variables
 ```bash
 docker-compose -f docker-compose-jedis-app-re.yml build
 ```
 
 #### Run docker application
 ```bash
-# back to parent directory
-cd ..
-docker-compose -f jedis-spring/docker-compose-jedis-app-re.yml up -d
+docker-compose -f docker-compose-jedis-app-re.yml up -d
 docker logs jedis-app
 ```
+* should see Started RedisJediSpringApplication proccess running 
+* verify data was written
+```bash
+cd ..
+./redis-cli-re-tls.sh
+keys *
+```
+* should see a key called *ticker:TSLA.US:20230501*
 
 ### Shutdown
 ```bash
-docker-compose  -f jedis-spring/docker-compose-jedis-app-re.yml down
+cd jedis-spring
+docker-compose -f docker-compose-jedis-app-re.yml down
 ```
 ### Run application outside of docker
 #### Install Java
@@ -124,31 +133,29 @@ EOF
 mvn clean package
 ```
 
-##### Run
-### Run
+#### Run
 edit the [app.env](scripts/app.env) appropriately for desires and environment.  Note example values for docker or redis enterprise
 NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
 ```bash
 source scripts/app.env
-java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
+java -jar target/jedisapp-0.0.1-SNAPSHOT.jar
 ```
-#### To run
-use the scripts directory, add some data
+* should see Started RedisJediSpringApplication proccess running 
+* verify data was written
 ```bash
-cd scripts
-./postTicker.sh
-./getKey.sh
+cd ..
+./redis-cli-re-tls.sh
+keys *
 ```
+* should see a key called *ticker:TSLA.US:20230501*
 
 ### What happens
-When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinel masters is resolved:
-```bash
-2023-03-24T16:48:13.771-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
-2023-03-24T16:48:14.010-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
-2023-03-24T16:48:14.015-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
-2023-03-24T16:48:14.094-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : Init RediSearchService
-2023-03-24T16:48:14.095-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : redisPassword is jasonrocks
-2023-03-24T16:48:14.097-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
-2023-03-24T16:48:14.252-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
-2023-03-24T16:48:14.253-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
-2023-03-24T16:48:14.254-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : looging in using username jph
+2023-05-01T09:52:38.486-05:00  INFO 24184 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-05-01T09:52:38.486-05:00  INFO 24184 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.7]
+2023-05-01T09:52:38.575-05:00  INFO 24184 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-05-01T09:52:38.577-05:00  INFO 24184 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1611 ms
+2023-05-01T09:52:38.728-05:00  INFO 24184 --- [           main] c.redis.jedispring.config.RedisConfig    : trust location=src/main/resources/tls/client-truststore.jks
+2023-05-01T09:52:38.728-05:00  INFO 24184 --- [           main] c.redis.jedispring.config.RedisConfig    : key location=src/main/resources/tls/client-keystore.p12
+2023-05-01T09:52:38.951-05:00  INFO 24184 --- [           main] c.redis.jedispring.config.RedisConfig    : parameters  host redis-10096.jphterra1.demo-rlec.redislabs.com port 10096 redis username jph redis password redis123 use tls true
+2023-05-01T09:52:39.186-05:00  INFO 24184 --- [           main] c.r.j.repository.TickerRepository        : starting tickerRepository.createTicker
+2023-05-01T09:52:39.252-05:00  INFO 24184 --- [           main] c.r.j.repository.TickerRepository        : tickerKey is ticker:TSLA.US:20230501
