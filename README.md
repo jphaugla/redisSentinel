@@ -6,8 +6,10 @@
 - [Important Links](#important-linksnotes)
 - [Deploy git](#deploy-github)
 - [Deploy redis](#deploy-redis)
-  - [Deploy on docker](#deploy-on-docker)
-  - [Deploy Redis Enterprise](#deploy-redis-enterprise)
+  - [Deploy TLS on docker](#deploy-on-docker)
+  - [Deploy TLS Redis Enterprise](#deploy-redis-enterprise)
+  - [Deploy Sentinel TLS on docker](#deploy-sentinel-docker)
+  - [Deploy Sentinel TLS Redis Enterprise](#deploy-redis-enterprise)
 - [Prepare database](#prepare-database)
 - [Verify Sentinel](#verify-sentinel)
 - [Jedis code](#jedis-code)
@@ -21,7 +23,7 @@
   - [Redis Enterprise Server steps](#redis-enterprise) 
 
 ## Overview
-This github shows code to connect to redis enterprise and redis-stack using sentinel and/or TLS.  Links provided in this github, show redisson sentinel with TLS as well.  Additionally, additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.  Redis enterprise as a standalone redis can be used or a docker solution based on redis stack.   Each client tool is in a separate subdirectory with a separate README.md as the main directory holds all the docker-compose files.
+This github shows code to connect to redis enterprise and redis-stack using sentinel and/or TLS.  Links provided in this github, show redisson sentinel with TLS as well.  Additionally, additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.  Redis enterprise as a standalone redis can be used or a docker solution based on redis stack.   Each client tool is in a separate subdirectory with a separate README.md as the main directory holds all the docker-compose files.  This README covers the database deployment.  Trying to give as broad a set of working examples in the TLS and sentinel space with a variety of client tools such as jedis, spring jedis, lettuce, spring lettuce, python, and node.js.  
 
 
 ## Deploy github
@@ -42,11 +44,14 @@ get clone https://github.com/jphaugla/redisSentinel.git
 - [Hostname must match for TLS](https://stackoverflow.com/questions/3093112/certificateexception-no-name-matching-ssl-someurl-de-found)
 - [Got Jedis SSL code from this link](https://redis.io/docs/clients/java/)
 - [Use SSL/TLS wiith Redis Enterprise](https://developer.redis.com/howtos/security/)
-- [Redis Sentinel](https://redis.io/docs/management/sentinel/)
+- [Redis Sentinel open source documentation](https://redis.io/docs/management/sentinel/)
+- [Redis Sentinel on docker youtube](https://www.youtube.com/watch?v=XxR6M6XQq6I)
+- [Redis Sentinel with TLS stackoverflow](https://stackoverflow.com/questions/61327471/redis-6-tls-support-and-redis-sentinel)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
 - [Redisson github including sentinel steps](https://github.com/jphaugla/Redis-Digital-Banking-redisson/)
 ## Deploy redis
+The following sections cover running redis-stack on docker or redis enterprise in standard TLS or Sentinel with TLS.  No changes are needed with Redis Enterpise to run sentinel without TLS-works with default installation.  Each application subdirectory will link back to the appropriate section here for the type of database setup needed to support the application.  This is a work in progress as not all combinations have been tested/completed at this time.  
 ### Deploy on Docker
 * may need to adjust environment variables in the docker compose file for the environment
 * ACL is also set in the Docker environment variable section
@@ -73,12 +78,23 @@ get clone https://github.com/jphaugla/redisSentinel.git
 #  back in github directory
    docker-compose -f docker-compose.no-tls.yml down
 ```
+* bring up tls redis-stack
+```bash
+docker-compose -f docker-compose.tls.yml up -d
+```
 
 ### Verify using redis-cli
 ```bash
 cd redisSentinel
 ./redis-cli-redis.sh
 ```
+* shutdown tls redis-stack
+```bash
+docker-compose -f docker-compose.tls.yml down
+```
+
+Go back to your application and get it connected to redis stack!
+
 
 ### Deploy redis enterprise
 * In [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
@@ -140,104 +156,8 @@ NOTE:  stunnel is no longer needed so use format in  redis-cli-re-tls.sh
 ./redis-cli-re-tls.sh
 ```
 
-## Verify sentinel 
-Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
-
-```bash
-# using redis enterprise
-[root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
-# using docker
-# using docker
-[root@ip-172-16-32-11 ~]# redis-cli -p 26379 -h localhost
-127.0.0.1:8001> SENTINEL masters
-1) 1) “name”
-  2) “TestDB@internal”
-  3) “ip”
-  4) “172.16.32.11"
-  5) “port”
-  6) “12000"
-  7) “flags”
-  8) “master”
-  9) “num-other-sentinels”
-  10) “0"
-2) 1) “name”
-  2) “TestDB”
-  3) “ip”
-  4) “3.239.252.137"
-  5) “port”
-  6) “12000"
-  7) “flags”
-  8) “master”
-  9) “num-other-sentinels”
-  10) “0"
-```
-
-## Jedis code
-This github is about using redis sentinel with Redis Enterprise.  Within the code is a [Jedis spring sentinel connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/config/RedisConfig.java) and a [Jedis non-spring jedis connection](https://github.com/jphaugla/redisSentinel/blob/main/src/main/java/com/redis/sentinel/service/RediSearchService.java#L76).  The non-spring connection is used for doing the redisjson commands.  To deploy redis enterprise on AWS, use [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)
-
-### Install Java
-#### redhat
-  * install java 
-  * set java home
-```bash
-sudo yum install java-17-openjdk
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-```
-  * download and install maven following [these steps](https://linuxize.com/post/how-to-install-apache-maven-on-centos-7) - NOTE:  yum installs older version
-  * this worked with java 17
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-export M2_HOME=/opt/maven
-export MAVEN_HOME=/opt/maven
-export PATH=${M2_HOME}/bin:${PATH}
-```
-
-#### ubuntu
-```bash
-mkdir binaries
-cd binaries
-apt install openjdk-18-jdk openjdk-18-jre
-cat <<EOF | sudo tee /etc/profile.d/jdk18.sh
-export JAVA_HOME=/usr/lib/jvm/java-18-openjdk-amd64
-EOF
-```
-  * download and install maven flollowing [these steps](https://phoenixnap.com/kb/install-maven-on-ubuntu)  Note:  apt-get installs older version
-### Compile application
-```bash
-mvn clean package
-```
-
-### Run
-edit the [app.env](scripts/app.env) appropriately for desires and environment.  Note example values for docker or redis enterprise
-NOTE: enter the database username and password created in the [Manage Users](https://docs.redis.com/latest/rs/security/access-control/manage-users/) step
-```bash
-source scripts/app.env
-java -jar target/redisentinel-0.0.1-SNAPSHOT.jar
-```
-#### To run
-use the scripts directory, add some data
-```bash
-cd scripts
-./postTicker.sh
-./getKey.sh
-```
-
-### What happens
-When the code starts the redis enterprise endpoint (environment variable is *REDIS_HOST*) is used for the server with the redis enterprise sentinel port of 8100.  This is log from the code as each of the sentinel masters is resolved:
-```bash
-2023-03-24T16:48:13.771-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
-2023-03-24T16:48:14.010-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
-2023-03-24T16:48:14.015-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
-2023-03-24T16:48:14.094-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : Init RediSearchService
-2023-03-24T16:48:14.095-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : redisPassword is jasonrocks
-2023-03-24T16:48:14.097-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Trying to find master from available Sentinels...
-2023-03-24T16:48:14.252-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 54.241.107.136:12128, starting Sentinel listeners...
-2023-03-24T16:48:14.253-05:00  INFO 76995 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 54.241.107.136:12128
-2023-03-24T16:48:14.254-05:00  INFO 76995 --- [           main] c.r.sentinel.service.RediSearchService   : looging in using username jph
-``` 
-
-## TLS
-Using sentinel and TLS with Redis Enterprise becomes a bit more difficult.  The given proxy key must be replaced with a proxy key that allows traffic through the redis enterprise endpoint as well as the redis enterprise IPs.  This is needed because when sentinel (actually the Redis Enterprise Discover service) retrieves the redis enterprise server, the IPs and not the DNS name is retrieved.
+## Redis Enterprise with TLS
+Redis Enterprise does not need any configuration changes to work with Sentinel. However, using sentinel and TLS with Redis Enterprise becomes a bit more difficult.  The given proxy key must be replaced with a proxy key that allows traffic through the redis enterprise endpoint as well as the redis enterprise IPs.  This is needed because when sentinel (actually the Redis Enterprise Discover service) retrieves the redis enterprise server, the IPs and not the DNS name is retrieved.
 
 The techniques described in [generate a self-signed SSL certificate for IP address github](https://medium.com/@antelle/how-to-generate-a-self-signed-ssl-certificate-for-an-ip-address-f0dd8dddf754) are used below.  Review the link for more in-depth explanations.
 
@@ -286,6 +206,38 @@ Verify the sentinel service has the IPs in the certificate
 ./gen-tests-certs.sh
 ```
  
+## Verify sentinel 
+Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
+
+```bash
+# using redis enterprise
+[root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
+# using docker
+# using docker
+[root@ip-172-16-32-11 ~]# redis-cli -p 26379 -h localhost
+127.0.0.1:8001> SENTINEL masters
+1) 1) “name”
+  2) “TestDB@internal”
+  3) “ip”
+  4) “172.16.32.11"
+  5) “port”
+  6) “12000"
+  7) “flags”
+  8) “master”
+  9) “num-other-sentinels”
+  10) “0"
+2) 1) “name”
+  2) “TestDB”
+  3) “ip”
+  4) “3.239.252.137"
+  5) “port”
+  6) “12000"
+  7) “flags”
+  8) “master”
+  9) “num-other-sentinels”
+  10) “0"
+```
+
 go back to the redisson github for the testing of TLS with Redisson
 
 copy this generated cert key at /opt/redislabs/bin/temp/cert.key to the connecting client in the redisson github directory
