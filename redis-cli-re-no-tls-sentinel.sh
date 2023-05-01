@@ -1,1 +1,1 @@
-redis-cli -p ${REDIS_PORT} -h ${REDIS_HOST} -a ${REDIS_PASSWORD} --user ${REDIS_USERNAME}
+redis-cli -p ${SENTINEL_PORT} -h ${SENTINEL_HOST} 

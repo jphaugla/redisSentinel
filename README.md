@@ -167,7 +167,39 @@ Redis Enterprise does not need any configuration changes to work with Sentinel. 
 The techniques described in [generate a self-signed SSL certificate for IP address github](https://medium.com/@antelle/how-to-generate-a-self-signed-ssl-certificate-for-an-ip-address-f0dd8dddf754) are used below.  Review the link for more in-depth explanations.
 
 ### Redis Enterprise steps
-Log into a redis enterprise node
+* Verify can connect to redis enterprise without TLS
+Log into a redis enterprise node 
+```bash
+./redis-cli-re-no-tls-un.sh
+```
+* Verify can connect to redis enterprise sentinel port without TLS
+Log into a redis enterprise node 
+```bash
+./redis-cli-re-no-tls-sentinel.sh
+1)  1) "name"
+    2) "db1@internal"
+    3) "ip"
+    4) "10.1.1.210"
+    5) "port"
+    6) "10096"
+    7) "flags"
+    8) "master"
+    9) "num-other-sentinels"
+   10) "0"
+2)  1) "name"
+    2) "db1"
+    3) "ip"
+    4) "13.56.173.237"
+    5) "port"
+    6) "10096"
+    7) "flags"
+    8) "master"
+    9) "num-other-sentinels"
+   10) "0"
+```
+* in this example the sentinel master name is *db1* which is also the name of the database from redis enterprise UI
+* at this point, go back to your application and make sure you can connect without TLS
+
 * Check the current key using openssl to get the information for the cnf file running this on redis server
 ```bash
  openssl s_client -connect jphterra2.demo-rlec.redislabs.com:8443 </dev/null 2>/dev/null | openssl x509 -noout -text | grep DNS
