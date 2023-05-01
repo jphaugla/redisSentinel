@@ -148,7 +148,7 @@ pbcopy < client_cert_app_001.pem
 * Click the Update button to save the configuration.
 ![](images/re-tls.png)
 
-#### Verify no long connect without TLS
+#### Verify no longer can connect without TLS
 ```bash
 ./redis-cli-re-no-tls-un.sh
 ```
@@ -161,16 +161,17 @@ cd redisSentinel
 ```
 Can now go back to chosen application to connect the application to redis enterprise with TLS
 
-## Redis Enterprise with TLS
+## Redis Enterprise with Sentinel
 Redis Enterprise does not need any configuration changes to work with Sentinel. However, using sentinel and TLS with Redis Enterprise becomes a bit more difficult.  The given proxy key must be replaced with a proxy key that allows traffic through the redis enterprise endpoint as well as the redis enterprise IPs.  This is needed because when sentinel (actually the Redis Enterprise Discover service) retrieves the redis enterprise server, the IPs and not the DNS name is retrieved.
 
 The techniques described in [generate a self-signed SSL certificate for IP address github](https://medium.com/@antelle/how-to-generate-a-self-signed-ssl-certificate-for-an-ip-address-f0dd8dddf754) are used below.  Review the link for more in-depth explanations.
 
-### Redis Enterprise steps
-* Verify can connect to redis enterprise without TLS
-Log into a redis enterprise node 
+### Verify Redis Enterprise connectivity
+* Log into a redis enterprise node 
 ```bash
 ./redis-cli-re-no-tls-un.sh
+set wow woot
+exit
 ```
 * Verify can connect to redis enterprise sentinel port without TLS
 Log into a redis enterprise node 
@@ -200,58 +201,85 @@ Log into a redis enterprise node
 * in this example the sentinel master name is *db1* which is also the name of the database from redis enterprise UI
 * at this point, go back to your application and make sure you can connect without TLS
 
+### Set up Sentinel TLS
+* Moving forward now to configure redis enterprise to work with Sentinel TLS
+#### Generate keys
+* Need to change the server side keys 
+* Log into first redis server
 * Check the current key using openssl to get the information for the cnf file running this on redis server
+* need the redis server at 8443
 ```bash
- openssl s_client -connect jphterra2.demo-rlec.redislabs.com:8443 </dev/null 2>/dev/null | openssl x509 -noout -text | grep DNS
+ssh -i aws_private.pem ubuntu@<ip address>
+openssl s_client -connect jphterra1.demo-rlec.redislabs.com:8443 </dev/null 2>/dev/null | openssl x509 -noout -text | grep DNS
+exit
 ```
-* copy the ./ssl/san.cnf file up the the redis server and save in a temp dir under /opt/redislabs/bin
+* this will return the DNS entries for redis, this is an example
+```bash 
+openssl s_client -connect jphterra1.demo-rlec.redislabs.com:8443 </dev/null 2>/dev/null | openssl x509 -noout -text | grep DNS
+    DNS:jphterra1.demo-rlec.redislabs.com, DNS:*.jphterra1.demo-rlec.redislabs.com, DNS:int.jphterra1.demo-rlec.redislabs.com, DNS:*.int.jphterra1.demo-rlec.redislabs.com
+```
+* copy the ./ssl/san.cnf file up the the redis server and save in /tmp
 ```bash
-sudo bash
-cd /opt/redislabs/bin
-mkdir temp
-cd temp
+scp -i aws_private.pem ssl/san.cnf /tmp
 ```
-copy contents of san.cnf into a file int this temp directory
-* using the DNS lines, edit the san.cnf to have correct DNS and IP addresses
+* using the DNS lines, edit the /tmp/san.cnf to have correct DNS and IP addresses
+  * the ip addresses are the internal and external ip address of each of the redis servers
 * create new key and cert pem files
 ```bash
+cd /tmp
 openssl req -x509 -nodes -days 730 -newkey rsa:2048 -keyout key.pem -out cert.pem -config san.cnf
+chown ubuntu:ubuntu *.pem
 ```
-Make redis server updates using rladmin and supervisorctl
+
+#### Make redis server updates using rladmin and supervisorctl
 ```bash
+sudo bash
 cd /opt/redislabs/bin
 ./rladmin
 rladmin> cluster config sentinel_ssl_policy allowed
 Cluster configured successfully
-rladmin> cluster certificate set proxy certificate_file temp/cert.pem key_file temp/key.pem
-Set proxy certificate to contents of file temp/cert.pem
-Set proxy key to contents of file temp/key.pem
+rladmin> cluster certificate set proxy certificate_file /tmp/cert.pem key_file /tmp/key.pem
+Set proxy certificate to contents of file /tmp/cert.pem
+Set proxy key to contents of file /tmp/key.pem
 exit
 ./supervisorctl restart dmcproxy
 ./supervisorctl restart sentinel_service
 ```
 Verify the sentinel service has the IPs in the certificate
 ```bash
- openssl s_client -connect jphterra2.demo-rlec.redislabs.com:8001 </dev/null 2>/dev/null | openssl x509 -noout -text | grep IP
+ openssl s_client -connect jphterra1.demo-rlec.redislabs.com:8001 </dev/null 2>/dev/null | openssl x509 -noout -text | grep IP
 ```
-
-### Redis OSS steps
-
-#### Generate certs
+* should display
 ```bash
-./get-gen-test-certs.sh
-./gen-tests-certs.sh
+ DNS:int.jphterra1.demo-rlec.redislabs.com, DNS:*.int.jphterra1.demo-rlec.redislabs.com, DNS:jphterra1.demo-rlec.redislabs.com, DNS:*.jphterra1.demo-rlec.redislabs.com, IP Address:13.56.173.237, IP Address:10.1.1.210, IP Address:184.169.142.148, IP Address:10.1.1.139, IP Address:54.177.27.129, IP Address:10.1.1.156
 ```
- 
+### Copy keys to client and database
+Back on client side
+```bash
+cd sentinel_keys/tls
+scp -i aws.pem ubuntu@13.56.173.237:/tmp/key.pem .
+scp -i aws.pem ubuntu@13.56.173.237:/tmp/cert.pem .
+scp -i aws_pem_file ubuntu@52.9.197.238:/etc/opt/redislabs/proxy_cert.pem .
+```
+## copy the generated cert file
+```bash
+pbcopy < cert.pem
+```
+##### Go to the Redis Enterprise Admin Web Console and enable TLS on your database:
+
+* Edit the database configuration
+* Check TLS
+* Select "Require TLS for All communications"
+* Check "Enforce client authentication"
+* Paste the certificate in the text area
+* Click the Save button to save the certificate
+* Click the Update button to save the configuration.
+![](images/re-tls.png)
+
 ## Verify sentinel 
 Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
-
 ```bash
-# using redis enterprise
-[root@ip-172-16-32-11 ~]# redis-cli -p 8001 -h redis_enterprise_endpoint
-# using docker
-# using docker
-[root@ip-172-16-32-11 ~]# redis-cli -p 26379 -h localhost
+./redis-cli-re-sentinel-sent-tls.sh
 127.0.0.1:8001> SENTINEL masters
 1) 1) “name”
   2) “TestDB@internal”
@@ -274,7 +302,22 @@ Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and
   9) “num-other-sentinels”
   10) “0"
 ```
+## Verify the full database connection
+```bash
+./redis-cli-re-sentinel-tls.sh
+set jason groovy
+```
 
+go back to sentinel tls application steps to connect
+
+### Redis OSS steps
+
+(not tested yet)
+#### Generate certs
+```bash
+./get-gen-test-certs.sh
+./gen-tests-certs.sh
+```
 go back to the redisson github for the testing of TLS with Redisson
 
 copy this generated cert key at /opt/redislabs/bin/temp/cert.key to the connecting client in the redisson github directory

@@ -1,1 +1,2 @@
-redis-cli -p ${REDIS_SENTINEL_PORT} -h ${REDIS_SENTINEL_HOST} --cert re_keys/tls/client_cert_app_001.pem --key re_keys/tls/client_key_app_001.pem --cacert re_keys/tls/proxy_cert.pem --tls
+#  this is not actually using the sentinel host, it is validating that the database is connecting correctly with the keys
+redis-cli -p ${REDIS_PORT} -h ${REDIS_HOST} -a ${REDIS_PASSWORD} --user ${REDIS_USERNAME} --cert sentinel_keys/tls/cert.pem --key sentinel_keys/tls/key.pem --cacert sentinel_keys/tls/proxy_cert.pem --tls
