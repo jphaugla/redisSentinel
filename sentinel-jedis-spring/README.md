@@ -50,7 +50,7 @@ docker-compose -f docker-compose-jedis-app.yml build
 ```bash
 # back to parent directory
 cd ..
-docker-compose -f docker-compose.tls.yml -f sentinel-jedis-spring/docker-compose-jedis-app.yml up -d
+docker-compose -f docker-compose.tls.yml -f docker-compose.sentinel-tls.sh -f sentinel-jedis-spring/docker-compose-jedis-app.yml up -d
 docker logs jedis-app
 ```
 jedis app logs should say *bar*

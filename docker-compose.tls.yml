@@ -6,7 +6,7 @@ services:
     container_name: redis
     hostname: redis
     environment:
-      REDIS_ARGS: "--tls-port 6379 --port 0 --tls-cert-file /scripts/tests/tls/redis.crt --tls-key-file /scripts/tests/tls/redis.key --tls-ca-cert-file /scripts/tests/tls/ca.crt --requirepass jasonrocks --aclfile /scripts/users.acl"
+      REDIS_ARGS: "--tls-port 6379 --port 0 --tls-cert-file /scripts/tests/tls/redis.crt --tls-key-file /scripts/tests/tls/redis.key --tls-ca-cert-file /scripts/tests/tls/ca.crt --requirepass jasonrocks --aclfile /scripts/users.acl --tls-replication yes"
     ports:
       - '6379:6379'
       - '8001:8001'
