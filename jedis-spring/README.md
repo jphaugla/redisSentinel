@@ -20,13 +20,13 @@
   - [Run](#run)
 - [Shutdown](#shutdown)
 ## Overview
-This subdirectory demonstrates jedis spring to connect to redis enterprise or redis stack using TLS
+This github demonstrates jedis spring to connect to redis enterprise using TLS.  This is only a simple connection test to show jedis spring can use TLS to write to redis docker.
 
 ## Important Links
 see parent directory [README.md important links](https://github.com/jphaugla/redisSentinel#important-links)
 
 ## Jedis code
-This github demonstrates jedis spring to connect to redis enterprise using TLS.  This is only a simple connection test to print out a single word *bar* of output to verify the TLS connection from Jedis is used.
+This github shows code to connect to redis enterprise and redis-stack using sentinel and/or TLS.  Links provided in this github, show redisson sentinel with TLS as well.  Additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.  Redis enterprise as a standalone redis can be used or a docker solution based on redis stack.   Each client tool is in a separate subdirectory with a separate README.md as the main directory holds all the docker-compose files.  This README covers the database deployment.  Trying to give as broad a set of working examples in the TLS and sentinel space with a variety of client tools such as jedis, spring jedis, lettuce, spring lettuce, python, and node.js.
 
 ## Using redis-stack
 Redis stack (rs) has redis modules built in
@@ -53,7 +53,16 @@ cd ..
 docker-compose -f docker-compose.tls.yml -f jedis-spring/docker-compose-jedis-app.yml up -d
 docker logs jedis-app
 ```
-jedis app logs should say *bar*
+jedis app logs should contain
+```bash
+2023-06-02T19:50:18.240Z  INFO 7 --- [           main] c.r.j.service.RediSearchService          : Init RediSearchService
+2023-06-02T19:50:18.240Z  INFO 7 --- [           main] c.r.j.service.RediSearchService          : starting redisearch.createTicker
+2023-06-02T19:50:18.243Z  INFO 7 --- [           main] c.r.j.repository.TickerRepository        : starting tickerRepository.createTicker
+2023-06-02T19:50:18.329Z  INFO 7 --- [           main] c.r.j.repository.TickerRepository        : tickerKey is ticker:TSLA.US:20230501
+2023-06-02T19:50:18.584Z  INFO 7 --- [           main] c.r.j.service.RediSearchService          : return from redisearch.createTicker Success
+
+2023-06-02T19:50:18.584Z  INFO 7 --- [           main] c.r.j.service.RediSearchService          : return val from createTicker Success
+```
 
 ### Shut down docker
 ```bash
