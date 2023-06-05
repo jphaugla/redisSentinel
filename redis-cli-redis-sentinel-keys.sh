@@ -1,0 +1,1 @@
+redis-cli -p ${REDIS_PORT} -h ${REDIS_HOST} -a ${REDIS_PASSWORD} --user ${REDIS_USERNAME} --cert scripts/sentinel_tests/tls/redis.crt --key scripts/sentinel_tests/tls/redis.key --cacert scripts/sentinel_tests/tls/ca.crt --tls

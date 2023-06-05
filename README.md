@@ -46,9 +46,11 @@ get clone https://github.com/jphaugla/redisSentinel.git
 - [Redis Sentinel open source documentation](https://redis.io/docs/management/sentinel/)
 - [Redis Sentinel on docker youtube](https://www.youtube.com/watch?v=XxR6M6XQq6I)
 - [Redis Sentinel with TLS stackoverflow](https://stackoverflow.com/questions/61327471/redis-6-tls-support-and-redis-sentinel)
+- {Redis Sentinel with TLS guide I followed}(https://www.dltlabs.com/blog/how-to-set-up-a-redis-cluster-with-tls-in-a-local-machine--679616)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
 - [Redisson github including sentinel steps](https://github.com/jphaugla/Redis-Digital-Banking-redisson/)
+
 ## Deploy redis
 The following sections cover running redis-stack on docker or redis enterprise in standard TLS or Sentinel with TLS.  No changes are needed with Redis Enterpise to run sentinel without TLS-works with default installation.  Each application subdirectory will link back to the appropriate section here for the type of database setup needed to support the application.  This is a work in progress as not all combinations have been tested/completed at this time.  
 ### Deploy on Docker
@@ -96,6 +98,133 @@ docker-compose -f docker-compose.tls.yml down
 
 Go back to your application and get it connected to redis stack!
 
+#### Deploy redis sentinel with TLS
+* Setup redis sentinel without TLS and verify connectivity
+```bash
+   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.sh up -d 
+   ./redis-cli-no-tls.sh
+   set silly very
+```
+* verify sentinel 
+```bash
+./redis-cli-sentinel-no-tls.sh
+127.0.0.1:26379> SENTINEL masters
+1)  1) "name"
+    2) "mymaster"
+    3) "ip"
+    4) "172.23.0.3"
+    5) "port"
+    6) "6379"
+    7) "runid"
+    8) "b57e75360cb5fe17681d55213e928db015cebff4"
+    9) "flags"
+   10) "master"
+   11) "link-pending-commands"
+   12) "0"
+   13) "link-refcount"
+   14) "1"
+   15) "last-ping-sent"
+   16) "0"
+   17) "last-ok-ping-reply"
+   18) "1017"
+   19) "last-ping-reply"
+   20) "1017"
+   21) "down-after-milliseconds"
+   22) "60000"
+   23) "info-refresh"
+   24) "4334"
+   25) "role-reported"
+   26) "master"
+   27) "role-reported-time"
+   28) "1008331"
+   29) "config-epoch"
+   30) "0"
+   31) "num-slaves"
+   32) "0"
+   33) "num-other-sentinels"
+   34) "0"
+   35) "quorum"
+   36) "2"
+   37) "failover-timeout"
+   38) "180000"
+   39) "parallel-syncs"
+   40) "1"
+```
+* setup redis sentinel TLS
+  * Build the certificates in the redis docker image
+    * using exact commands from [this redis tls webpage](https://www.dltlabs.com/blog/how-to-set-up-a-redis-cluster-with-tls-in-a-local-machine--679616)
+    * since the target directory for the certificates is docker volume mounted, the generated files will be available in the github directory as well
+    * these certificates will be needed by the running application.  Each application README.md will have instructions to leverage the certificates by the application
+```bash
+   docker exec -it redis bash
+#  in the docker container for redis
+   apt-get update
+   apt-get install openssl
+   cd scripts
+   ./gen-sentinel-test-certs.sh
+   exit
+#  back in github directory
+   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.sh down
+```
+* bring up sentinel tls redis-stack
+```bash
+docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh up -d
+```
+
+### Verify using redis-cli
+edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
+```bash
+source scripts/app.env
+cd redisSentinel
+./redis-cli-sentinel.sh
+127.0.0.1:26379> SENTINEL masters
+1)  1) "name"
+    2) "mymaster"
+    3) "ip"
+    4) "192.168.96.4"
+    5) "port"
+    6) "6379"
+    7) "runid"
+    8) "6eb9dddc076f8df2f082308e8193113153d8bf17"
+    9) "flags"
+   10) "master"
+   11) "link-pending-commands"
+   12) "0"
+   13) "link-refcount"
+   14) "1"
+   15) "last-ping-sent"
+   16) "0"
+   17) "last-ok-ping-reply"
+   18) "987"
+   19) "last-ping-reply"
+   20) "987"
+   21) "down-after-milliseconds"
+   22) "60000"
+   23) "info-refresh"
+   24) "5145"
+   25) "role-reported"
+   26) "master"
+   27) "role-reported-time"
+   28) "35300"
+   29) "config-epoch"
+   30) "0"
+   31) "num-slaves"
+   32) "0"
+   33) "num-other-sentinels"
+   34) "0"
+   35) "quorum"
+   36) "2"
+   37) "failover-timeout"
+   38) "180000"
+   39) "parallel-syncs"
+   40) "1"
+```
+* shutdown tls redis-stack
+```bash
+docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh down
+```
+
+Go back to your application and get it connected to redis stack!
 
 ### Deploy redis enterprise
 * In [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).

@@ -28,7 +28,7 @@ see parent directory [README.md important links](https://github.com/jphaugla/red
 ## Jedis code
 This github demonstrates jedis spring sentinel to connect to redis enterprise using TLS.  
 
-## Using redis-stack  (not tested yet)
+## Using redis-stack  
 Redis stack (rs) has redis modules built in
 ### Deploy redis stack
 see parent directory [README.md deploy on docker](https://github.com/jphaugla/redisSentinel#deploy-on-docker)
@@ -50,14 +50,24 @@ docker-compose -f docker-compose-jedis-app.yml build
 ```bash
 # back to parent directory
 cd ..
-docker-compose -f docker-compose.tls.yml -f docker-compose.sentinel-tls.sh -f sentinel-jedis-spring/docker-compose-jedis-app.yml up -d
+docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh -f sentinel-jedis-spring/docker-compose-jedis-app.yml up -d
 docker logs jedis-app
 ```
-jedis app logs should say *bar*
+logs should contain
+```bash
+2023-06-05T22:14:56.132Z  INFO 7 --- [           main] redis.clients.jedis.JedisSentinelPool    : Redis master running at 192.168.96.4:6379, starting Sentinel listeners...
+2023-06-05T22:14:56.136Z  INFO 7 --- [           main] redis.clients.jedis.JedisSentinelPool    : Created JedisSentinelPool to master at 192.168.96.4:6379
+2023-06-05T22:14:56.185Z  INFO 7 --- [           main] c.r.sentinel.service.RediSearchService   : Init RediSearchService
+2023-06-05T22:14:56.405Z  INFO 7 --- [           main] c.r.sentinel.service.RediSearchService   : return val from createTicker Success
+
+2023-06-05T22:14:57.965Z  INFO 7 --- [           main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-5000], TLS virtual host [_default_], certificate type [UNDEFINED] configured from [file:/usr/app/tls/client-keystore.p12] using alias [tomcat] and with trust store [file:/usr/app/tls/client-truststore.jks]
+2023-06-05T22:14:57.987Z  INFO 7 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 5000 (https) with context path ''
+2023-06-05T22:14:58.002Z  INFO 7 --- [           main] c.r.sentinel.RedisSentinelApplication    : Started RedisSentinelApplication in 5.152 seconds (process running for 6.017)
+```
 
 ### Shut down docker
 ```bash
-docker-compose -f docker-compose.tls.yml -f sentinel-jedis-spring/docker-compose-jedis-app.yml down
+docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh -f sentinel-jedis-spring/docker-compose-jedis-app.yml down
 ```
 
 ## using redis-enterprise

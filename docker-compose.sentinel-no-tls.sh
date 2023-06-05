@@ -13,3 +13,5 @@ services:
       - REDIS_SENTINEL_PORT_NUMBER=26379
     ports:
       - '26379:26379'
+    volumes:
+      - ./scripts:/scripts
