@@ -6,21 +6,22 @@
 - [Important Links](#important-linksnotes)
 - [Deploy git](#deploy-github)
 - [Deploy redis](#deploy-redis)
-  - [Deploy TLS on docker](#deploy-on-docker)
-  - [Deploy TLS Redis Enterprise](#deploy-redis-enterprise)
-  - [Deploy Sentinel TLS on docker](#deploy-sentinel-docker)
-  - [Deploy Sentinel TLS Redis Enterprise](#deploy-redis-enterprise)
-- [Prepare database](#prepare-database)
-- [Verify Sentinel](#verify-sentinel)
-- [Jedis code](#jedis-code)
-  - [Install java](#install-java)
-    - [redhat](#redhat)
-    - [ubuntu](#ubuntu)
-  - [Compile application](#compile-application)
-  - [Run](#run)
-  - [What happens](#what-happens)
-- [TLS](#tls)
-  - [Redis Enterprise Server steps](#redis-enterprise) 
+  - [Deploy on docker](#deploy-on-docker)
+    - [Deploy redis with TLS](#deploy-redis-with-tls)
+    - [Verify with redis-cli](#verify-using-redis-cli)
+    - [Deploy Redis Sentinel with TLS](#deploy-redis-sentinel-with-tls)
+    - [Verify sentinel using redis-cli](#verify-sentinel-using-redis-cli)
+  - [Deploy Redis Enterprise](#deploy-redis-enterprise)
+    - [Deploy Redis Enterprise without TLS](#deploy-redis-enterprise-database-without-tls)
+    - [Verify access to the database](#verify-access-to-the-database)
+    - [Prepare database](#prepare-database)
+    - [Verify connectivity to database](#verify-connectivity-to-database)
+    - [Setup TLS for Redis Enterprise](#setup-tls-for-redis-enterprise)
+    - [Redis Enterprise with Sentinel](#redis-enterprise-with-sentinel)
+    - [Verify Redis Enterprise Connectivity](#verify-redis-enterprise-connectivity)
+    - [Set up Sentinel TLS](#set-up-sentinel-tls)
+    - [Verify redis enterprise sentinel tls](#verify-redis-enterprise-sentinel-tls)
+
 
 ## Overview
 This github shows code to connect to redis enterprise and redis-stack using sentinel and/or TLS.  Links provided in this github, show redisson sentinel with TLS as well.  Additional steps are needed on the redis enterprise server if sentinel is used with TLS-these steps are also provided.  Redis enterprise as a standalone redis can be used or a docker solution based on redis stack.   Each client tool is in a separate subdirectory with a separate README.md as the main directory holds all the docker-compose files.  This README covers the database deployment.  Trying to give as broad a set of working examples in the TLS and sentinel space with a variety of client tools such as jedis, spring jedis, lettuce, spring lettuce, python, and node.js.
@@ -46,7 +47,7 @@ get clone https://github.com/jphaugla/redisSentinel.git
 - [Redis Sentinel open source documentation](https://redis.io/docs/management/sentinel/)
 - [Redis Sentinel on docker youtube](https://www.youtube.com/watch?v=XxR6M6XQq6I)
 - [Redis Sentinel with TLS stackoverflow](https://stackoverflow.com/questions/61327471/redis-6-tls-support-and-redis-sentinel)
-- {Redis Sentinel with TLS guide I followed}(https://www.dltlabs.com/blog/how-to-set-up-a-redis-cluster-with-tls-in-a-local-machine--679616)
+- [Redis Sentinel with TLS guide I followed](https://www.dltlabs.com/blog/how-to-set-up-a-redis-cluster-with-tls-in-a-local-machine--679616)
 - [Redis spring boot with sentinel](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel)
 - [ioredis with TLS](https://github.com/luin/ioredis#sentinel)
 - [Redisson github including sentinel steps](https://github.com/jphaugla/Redis-Digital-Banking-redisson/)
@@ -84,7 +85,7 @@ The following sections cover running redis-stack on docker or redis enterprise i
 docker-compose -f docker-compose.tls.yml up -d
 ```
 
-### Verify using redis-cli
+#### Verify sentinel using redis-cli
 edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
 source scripts/app.env
@@ -170,8 +171,7 @@ Go back to your application and get it connected to redis stack!
 ```bash
 docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh up -d
 ```
-
-### Verify using redis-cli
+### Verify using redis cli
 edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
 source scripts/app.env
@@ -404,7 +404,7 @@ pbcopy < cert.pem
 * Click the Update button to save the configuration.
 ![](images/re-tls.png)
 
-## Verify sentinel 
+### Verify redis enterprise sentinel tls
 Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and query for the sentinel information
 ```bash
 ./redis-cli-re-sentinel-sent-tls.sh
@@ -430,22 +430,13 @@ Get the SENTINEL_MASTER use redis cli to connect to the sentinel (8100) port and
   9) “num-other-sentinels”
   10) “0"
 ```
-## Verify the full database connection
+### Verify the full database connection
 ```bash
 ./redis-cli-re-sentinel-tls.sh
 set jason groovy
 ```
 
-go back to sentinel tls application steps to connect
+* go back to sentinel tls application steps to connect
 
-### Redis OSS steps
+* go back to the redisson github for the testing of TLS with Redisson
 
-(not tested yet)
-#### Generate certs
-```bash
-./get-gen-test-certs.sh
-./gen-tests-certs.sh
-```
-go back to the redisson github for the testing of TLS with Redisson
-
-copy this generated cert key at /opt/redislabs/bin/temp/cert.key to the connecting client in the redisson github directory
