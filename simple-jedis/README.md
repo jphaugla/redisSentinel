@@ -33,7 +33,12 @@ Redis stack (rs) has redis modules built in
 ### Deploy redis stack
 see parent directory [README.md deploy on docker](https://github.com/jphaugla/redisSentinel#deploy-on-docker)
 ### Create trust and key store-rs
-the java application needs a keystore and trustore for TLS.  This creates the keystore and trustfile using the keys files created in parent directory
+the java application needs a keystore and truststore for TLS.  This creates the keystore and trustfile using the keys files created in parent directory
+
+If it doesn't already exist:
+```bash
+mkdir -p src/main/resources/tls
+```
 ```bash
 cd redisSentinel/simple-jedis
 export TRUSTSTORE_PASSWORD=jasonrocks

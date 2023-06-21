@@ -27,3 +27,5 @@ hs_err_pid*
 # generated files
 redis_data/
 scripts/tests/
+scripts/sentinel_tests/
+simple-jedis/src/main/resources/tls/

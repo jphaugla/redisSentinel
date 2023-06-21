@@ -66,7 +66,7 @@ The following sections cover running redis-stack on docker or redis enterprise i
   * since the target directory for the certificates is docker volume mounted, the generated files will be available in the github directory as well
   * these certificates will be needed by the running application.  Each application README.md will have instructions to leverage the certificates by the application
 ```bash
-   cd redisSentinel/scripts
+   cd scripts
    ./get-gen-test-certs.sh
    cd ..
    docker-compose -f docker-compose.no-tls.yml up -d 
@@ -89,7 +89,6 @@ docker-compose -f docker-compose.tls.yml up -d
 edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
 source scripts/app.env
-cd redisSentinel
 ./redis-cli-redis.sh
 ```
 * shutdown tls redis-stack
@@ -102,7 +101,7 @@ Go back to your application and get it connected to redis stack!
 #### Deploy redis sentinel with TLS
 * Setup redis sentinel without TLS and verify connectivity
 ```bash
-   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.sh up -d 
+   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.yml up -d 
    ./redis-cli-no-tls.sh
    set silly very
 ```
@@ -162,20 +161,21 @@ Go back to your application and get it connected to redis stack!
    apt-get update
    apt-get install openssl
    cd scripts
+#  if it doesn't already exist:
+   mkdir -p sentinel_tests/tls
    ./gen-sentinel-test-certs.sh
    exit
 #  back in github directory
-   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.sh down
+   docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.yml down
 ```
 * bring up sentinel tls redis-stack
 ```bash
-docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh up -d
+docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.sentinel-tls.yml up -d
 ```
 ### Verify using redis cli
 edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
 source scripts/app.env
-cd redisSentinel
 ./redis-cli-sentinel.sh
 127.0.0.1:26379> SENTINEL masters
 1)  1) "name"
@@ -221,7 +221,7 @@ cd redisSentinel
 ```
 * shutdown tls redis-stack
 ```bash
-docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh down
+docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.sentinel-tls.yml down
 ```
 
 Go back to your application and get it connected to redis stack!
@@ -284,7 +284,6 @@ pbcopy < client_cert_app_001.pem
 #### Verify can connect with TLS
 NOTE:  stunnel is no longer needed so use format in  redis-cli-re-tls.sh
 ```bash
-cd redisSentinel
 ./redis-cli-re-tls.sh
 ```
 Can now go back to chosen application to connect the application to redis enterprise with TLS
