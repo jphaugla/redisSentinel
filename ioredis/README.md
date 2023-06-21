@@ -15,14 +15,14 @@
     * These are just setting variables in the redis.conf file
     * TLS has a set of redis.conf variables needed as well
 * must run the application under docker compose because of sentinel networking
-    * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
+    * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and Node app) must be on same network
 ```bash
 docker-compose build 
 docker-compose up -d
 ```
 ### Deploy redis enterprise
 [see README.md in home directory](../README.md)
-#### To get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
+#### To get the SENTINEL_MASTER use redis cli to connect to the sentinel (8001) port and query for the sentinel information
 
 ```bash
 # using redis enterprise
