@@ -17,5 +17,5 @@ RUN npm i -s ioredis
 COPY . .
 
 EXPOSE 8080
-CMD [ "node", "sentinel_login.js" ]
-# CMD [ "node", "simple_login.js" ]
+#CMD [ "node", "sentinel_login.js" ]
+CMD [ "node", "simple_login.js" ]

@@ -85,7 +85,7 @@ The following sections cover running redis-stack on docker or redis enterprise i
 docker-compose -f docker-compose.tls.yml up -d
 ```
 
-#### Verify sentinel using redis-cli
+#### Verify TLS using redis-cli
 edit scripts/app.env to have redis as REDIS_HOST and 6379 as REDIS_PORT
 ```bash
 source scripts/app.env
@@ -155,17 +155,21 @@ Go back to your application and get it connected to redis stack!
     * using exact commands from [this redis tls webpage](https://www.dltlabs.com/blog/how-to-set-up-a-redis-cluster-with-tls-in-a-local-machine--679616)
     * since the target directory for the certificates is docker volume mounted, the generated files will be available in the github directory as well
     * these certificates will be needed by the running application.  Each application README.md will have instructions to leverage the certificates by the application
+
+```bash
+  #  if it doesn't already exist:
+  mkdir -p sentinel_tests/tls
+```
 ```bash
    docker exec -it redis bash
 #  in the docker container for redis
    apt-get update
    apt-get install openssl
    cd scripts
-#  if it doesn't already exist:
-   mkdir -p sentinel_tests/tls
    ./gen-sentinel-test-certs.sh
    exit
 #  back in github directory
+   cd ..
    docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.yml down
 ```
 * bring up sentinel tls redis-stack
@@ -227,7 +231,7 @@ docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.senti
 Go back to your application and get it connected to redis stack!
 
 ### Deploy redis enterprise
-* In [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise)), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
+* In [this github](https://github.com/jphaugla/tfmodule-aws-redis-enterprise), a database is created with redis search and redis json deployed.  json is needed if the environment variable WRITE_JSON is set to true.  Search is not used in this application but if curious about search, the code is *lifted* from [my github that uses search and json](https://github.com/jphaugla/redisearchStock).
 * This readme is following the steps from this [TLS with Redis Enterprise github](https://developer.redis.com/howtos/security/)
 
 #### Deploy redis enterprise database without TLS

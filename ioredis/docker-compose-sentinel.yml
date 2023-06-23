@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  ioredis-app:
+    image: ioredis-app
+    container_name: ioredis-app
+    environment:
+      - SENTINEL_HOST=redis-sentinel
+      - SENTINEL_PORT=26379
+#       only need the REDIS_HOST and REDIS_PASSWORD if running simple_login.js instead of sentinel_login.js
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SENTINEL_MASTER=mymaster
+      - REDIS_PASSWORD=jasonrocks
+      - REDIS_USERNAME=jph
+      - WRITE_JSON=false
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    volumes:
+      - "./src/:/app"
+      - "../data/:/data"

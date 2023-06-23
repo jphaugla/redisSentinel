@@ -31,3 +31,6 @@ redis_data/
 scripts/tests/
 scripts/sentinel_tests/
 simple-jedis/src/main/resources/tls/
+node_modules/
+redisinsight
+scripts/gen-test-certs.sh.1

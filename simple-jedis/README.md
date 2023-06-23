@@ -40,7 +40,7 @@ If it doesn't already exist:
 mkdir -p src/main/resources/tls
 ```
 ```bash
-cd redisSentinel/simple-jedis
+cd simple-jedis
 export TRUSTSTORE_PASSWORD=jasonrocks
 export KEYSTORE_PASSWORD=jasonrocks
 ./generatekeystore.sh
@@ -68,7 +68,7 @@ see parent directory [README.md deploy on redis enterprise](https://github.com/j
 ### Create trust and key store
 The java application needs a keystore and truststore for TLS.  This creates the keystore and trustfile using the keys files created in parent directory
 ```bash
-cd redisSentinel/simple-jedis
+cd simple-jedis
 source app.env
 ./generatekeystore-RE.sh
 ./importkey-RE.sh
