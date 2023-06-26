@@ -18,6 +18,7 @@ async function ioredisDemo() {
             name: client_name,
             username: username,
             password: password,
+            enableTLSForSentinelMode: true,
             tls: {
                 // Refer to `tls.connect()` section in
                 // https://nodejs.org/api/tls.html
@@ -26,7 +27,6 @@ async function ioredisDemo() {
                 key: fs.readFileSync('/scripts/sentinel_tests/tls/private.key', 'ascii'),
                 cert: fs.readFileSync('/scripts/sentinel_tests/tls/san.crt', 'ascii'),
                 ca: fs.readFileSync('/scripts/sentinel_tests/tls/CA-cert.pem', 'ascii'),
-                enableTLSForSentinelMode: true,
                 showFriendlyErrorStack: true,
             },
         });
