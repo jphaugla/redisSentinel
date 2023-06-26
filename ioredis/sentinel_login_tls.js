@@ -1,3 +1,4 @@
+import fs from "fs"
 import Redis from 'ioredis'
 
 async function ioredisDemo() {
@@ -17,9 +18,20 @@ async function ioredisDemo() {
             name: client_name,
             username: username,
             password: password,
+            tls: {
+                // Refer to `tls.connect()` section in
+                // https://nodejs.org/api/tls.html
+                // for all supported options
+                rejectUnauthorized: false, // Need this for self-signed certs. Don't want this in production
+                key: fs.readFileSync('/scripts/sentinel_tests/tls/private.key', 'ascii'),
+                cert: fs.readFileSync('/scripts/sentinel_tests/tls/san.crt', 'ascii'),
+                ca: fs.readFileSync('/scripts/sentinel_tests/tls/CA-cert.pem', 'ascii'),
+                enableTLSForSentinelMode: true,
+                showFriendlyErrorStack: true,
+            },
         });
 
-        await client.set('mykey', 'Hello from io-redis Sentinel no TLS!');
+        await client.set('mykey', 'Hello from io-redis Sentinel with TLS!');
         const myKeyValue = await client.get('mykey');
         console.log(myKeyValue);
 
