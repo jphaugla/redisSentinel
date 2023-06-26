@@ -34,3 +34,4 @@ simple-jedis/src/main/resources/tls/
 node_modules/
 redisinsight
 scripts/gen-test-certs.sh.1
+__pycache__
