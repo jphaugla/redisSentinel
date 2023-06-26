@@ -16,9 +16,12 @@
     * TLS has a set of redis.conf variables needed as well
 * must run the application under docker compose because of sentinel networking
     * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and Node app) must be on same network
+* Because we have the redis stack and sentinel servers configured in the parent directory, it's best to run docker-compose from there and include the ioredis compose file
+
+### Without Sentinel, with TLS
 ```bash
-docker-compose build 
-docker-compose up -d
+docker-compose -f ioredis/docker-compose-no-sentinel.yml build 
+docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-sentinel.yml up -d
 ```
 ### Deploy redis enterprise
 [see README.md in home directory](../README.md)

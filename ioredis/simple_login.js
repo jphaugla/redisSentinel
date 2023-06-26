@@ -18,16 +18,12 @@ async function ioredisDemo() {
                 // Refer to `tls.connect()` section in
                 // https://nodejs.org/api/tls.html
                 // for all supported options
-                ca: fs.readFileSync("ca.crt"),
+                rejectUnauthorized: false, // Need this for self-signed certs. Don't want this in production
+                key: fs.readFileSync('/scripts/tests/tls/client.key', 'ascii'),
+                cert: fs.readFileSync('/scripts/tests/tls/client.crt', 'ascii'),
+                ca: fs.readFileSync('/scripts/tests/tls/ca.crt', 'ascii'),
             },
         });
-
-        /*
-        const connection = `rediss://${username}:${password}@${host}:${port}`;
-        console.log(`Connection: ${connection}`);
-        const client = new Redis(connection);
-
-         */
 
         await client.set('mykey', 'Hello from io-redis!');
         const myKeyValue = await client.get('mykey');
