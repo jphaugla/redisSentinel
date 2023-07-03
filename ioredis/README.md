@@ -15,14 +15,59 @@
     * These are just setting variables in the redis.conf file
     * TLS has a set of redis.conf variables needed as well
 * must run the application under docker compose because of sentinel networking
-    * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and java app) must be on same network
+    * sentinel redirects to the redis database and all three nodes (redis, redis sentinel, and Node app) must be on same network
+* Because we have the redis stack and sentinel servers configured in the parent directory, it's best to run docker-compose from there and include the ioredis compose file
+
+### Without Sentinel, with TLS
 ```bash
-docker-compose build 
-docker-compose up -d
+docker-compose -f ioredis/docker-compose-no-sentinel.yml build 
+docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-sentinel.yml up -d
 ```
+
+To test if it ran correctly print the logs:
+```bash
+docker logs ioredis-app
+```
+
+To shut down the containers:
+```bash
+docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-sentinel.yml down
+```
+### With Sentinel, without TLS
+The first thing you'll want to do is change the ioredis/Dockerfile to run the `sentinel_login` application, so uncomment it out
+and comment out the other ones.
+
+Next, build the client
+```bash
+docker-compose -f ioredis/docker-compose-sentinel.yml build
+```
+
+Next, run redis, sentinel and client containers
+```bash
+docker-compose -f docker-compose.no-tls.yml -f docker-compose.sentinel-no-tls.yml -f ioredis/docker-compose-sentinel.yml up -d
+```
+
+### With Sentinel, with TLS
+Now comes the fun part - with Sentinel and with TLS
+
+First, follow the steps to configure sentinel with TLS in the project root README
+
+Next, change the ioredis/Dockerfile to run the `sentinel_login_tls` application, so uncomment it out
+and comment out the other ones.
+
+Next, build the client
+```bash
+docker-compose -f ioredis/docker-compose-sentinel.yml build
+```
+
+Next, run redis, sentinel and client containers with TLS
+```bash
+docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.sentinel-tls.yml -f ioredis/docker-compose-sentinel.yml up -d
+```
+
 ### Deploy redis enterprise
 [see README.md in home directory](../README.md)
-#### To get the SENTINEL_MASTER use redis cli to connect to the sentinal (8100) port and query for the sentinel information
+#### To get the SENTINEL_MASTER use redis cli to connect to the sentinel (8001 or 26379) port and query for the sentinel information
 
 ```bash
 # using redis enterprise

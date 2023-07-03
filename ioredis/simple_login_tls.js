@@ -1,27 +1,33 @@
+import fs from "fs"
 import Redis from 'ioredis'
 
 async function ioredisDemo() {
     try {
         console.log(process.env);
-        const host = process.env.SENTINEL_HOST;
-        const port = process.env.SENTINEL_PORT;
-        const client_name = process.env.SENTINEL_MASTER;
+        const host = process.env.REDIS_HOST;
+        const port = process.env.REDIS_PORT;
         const username = process.env.REDIS_USERNAME;
         const password = process.env.REDIS_PASSWORD;
 
         const client = new Redis({
-            sentinels: [{
-                host: host,
-                port: port,
-            }],
-            name: client_name,
+            host: host,
+            port: port,
             username: username,
             password: password,
+            tls: {
+                // Refer to `tls.connect()` section in
+                // https://nodejs.org/api/tls.html
+                // for all supported options
+                rejectUnauthorized: false, // Need this for self-signed certs. Don't want this in production
+                key: fs.readFileSync('/scripts/tests/tls/client.key', 'ascii'),
+                cert: fs.readFileSync('/scripts/tests/tls/client.crt', 'ascii'),
+                ca: fs.readFileSync('/scripts/tests/tls/ca.crt', 'ascii'),
+            },
         });
 
-        await client.set('mykey', 'Hello from io-redis Sentinel no TLS!');
+        await client.set('mykey', 'Hello from io-redis!');
         const myKeyValue = await client.get('mykey');
-        console.log(myKeyValue);
+        console.log(`Simple login: ${myKeyValue}`);
 
         const numAdded = await client.zadd('vehicles', 4, 'car', 2, 'bike');
         console.log(`Added ${numAdded} items.`);

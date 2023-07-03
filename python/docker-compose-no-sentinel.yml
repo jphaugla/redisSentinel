@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  ioredis-app:
+    image: python-app
+    container_name: python-app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=jasonrocks
+      - REDIS_USERNAME=jph
+      - WRITE_JSON=false
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    volumes:
+      - "./scripts:/scripts"

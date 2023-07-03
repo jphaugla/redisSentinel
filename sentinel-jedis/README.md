@@ -50,14 +50,14 @@ docker-compose -f docker-compose-jedis-app.yml build
 ```bash
 # back to parent directory
 cd ..
-docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh -f sentinel-jedis/docker-compose-jedis-app.yml up -d
+docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.sentinel-tls.yml -f sentinel-jedis/docker-compose-jedis-app.yml up -d
 docker logs jedis-app
 ```
 logs should come back with the word *bar*
 
 ### Shut down docker
 ```bash
-docker-compose -f docker-compose.redis-sentinel-keys.sh -f docker-compose.sentinel-tls.sh -f sentinel-jedis/docker-compose-jedis-app.yml down
+docker-compose -f docker-compose.redis-sentinel-keys.yml -f docker-compose.sentinel-tls.yml -f sentinel-jedis/docker-compose-jedis-app.yml down
 ```
 
 ## using redis-enterprise
