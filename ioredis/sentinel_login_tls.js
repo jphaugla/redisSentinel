@@ -10,6 +10,30 @@ async function ioredisDemo() {
         const username = process.env.REDIS_USERNAME;
         const password = process.env.REDIS_PASSWORD;
 
+        const sentinelConfig = [
+            { host: host, port: port },
+        ];
+
+        // Redis TLS Configuration
+        const tlsOptions = {
+            key: fs.readFileSync('/scripts/sentinel_tests/tls/private.key'),
+            cert: fs.readFileSync('/scripts/sentinel_tests/tls/san.crt'),
+            ca: fs.readFileSync('/scripts/sentinel_tests/tls/CA-cert.pem'),
+            rejectUnauthorized: false, // Need this for self-signed certs. Don't want this in production
+        };
+
+        // Redis Connection Options
+        const redisOptions = {
+            sentinels: sentinelConfig,
+            name: client_name,
+            tls: tlsOptions,
+        };
+
+        console.log(`tlsOptions: ${JSON.stringify(tlsOptions)}`)
+
+        const client = new Redis(redisOptions);
+
+        /*
         const client = new Redis({
             sentinels: [{
                 host: host,
@@ -31,8 +55,23 @@ async function ioredisDemo() {
             },
         });
 
-        await client.set('mykey', 'Hello from io-redis Sentinel with TLS!');
-        const myKeyValue = await client.get('mykey');
+         */
+
+        await client.set('mykey', 'Hello from io-redis Sentinel with TLS!', (error, result) => {
+            if (error) {
+                console.error('Error setting Redis key:', error);
+            } else {
+                console.log('Redis key set successfully!');
+            }
+        });
+
+        const myKeyValue = await client.get('mykey', (error, result) => {
+            if (error) {
+                console.error('Error retrieving Redis value:', error);
+            } else {
+                console.log('Redis value:', result);
+            }
+        });
         console.log(myKeyValue);
 
         const numAdded = await client.zadd('vehicles', 4, 'car', 2, 'bike');
