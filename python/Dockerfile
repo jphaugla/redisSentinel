@@ -8,4 +8,5 @@ RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 #CMD ["poetry", "run", "python", "app/get_set_redis.py"]
-CMD ["poetry", "run", "python", "app/get_set_redis_tls.py"]
+#CMD ["poetry", "run", "python", "app/get_set_redis_tls.py"]
+CMD ["poetry", "run", "python", "app/get_set_redis_sentinel.py"]
