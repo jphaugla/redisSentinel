@@ -5,16 +5,11 @@ services:
     image: python-app
     container_name: python-app
     environment:
-      - SENTINEL_HOST=redis-sentinel
-      - SENTINEL_PORT=26379
-      - SENTINEL_MASTER=mymaster
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - REDIS_PASSWORD=jasonrocks
       - REDIS_USERNAME=jph
       - WRITE_JSON=false
     build:
       context: .
-      dockerfile: sentinel.Dockerfile
-    ports:
-      - '8080:8080'
-    volumes:
-      - "./scripts:/scripts"
+      dockerfile: tls.Dockerfile

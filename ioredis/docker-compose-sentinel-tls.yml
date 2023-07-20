@@ -1,9 +1,9 @@
 version: '3.9'
 
 services:
-  python-app:
-    image: python-app
-    container_name: python-app
+  ioredis-app:
+    image: ioredis-app
+    container_name: ioredis-app
     environment:
       - SENTINEL_HOST=redis-sentinel
       - SENTINEL_PORT=26379
@@ -13,7 +13,7 @@ services:
       - WRITE_JSON=false
     build:
       context: .
-      dockerfile: sentinel.Dockerfile
+      dockerfile: sentinel_tls.Dockerfile
     ports:
       - '8080:8080'
     volumes:

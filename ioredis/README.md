@@ -20,8 +20,8 @@
 
 ### Without Sentinel, with TLS
 ```bash
-docker-compose -f ioredis/docker-compose-no-sentinel.yml build 
-docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-sentinel.yml up -d
+docker-compose -f ioredis/docker-compose-no-tls.yml build 
+docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-tls.yml up -d
 ```
 
 To test if it ran correctly print the logs:
@@ -31,7 +31,7 @@ docker logs ioredis-app
 
 To shut down the containers:
 ```bash
-docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-sentinel.yml down
+docker-compose docker-compose.tls.yml -f ioredis/docker-compose-no-tls.yml down
 ```
 ### With Sentinel, without TLS
 The first thing you'll want to do is change the ioredis/Dockerfile to run the `sentinel_login` application, so uncomment it out
