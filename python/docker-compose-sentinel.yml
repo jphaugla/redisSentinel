@@ -1,9 +1,9 @@
 version: '3.9'
 
 services:
-  ioredis-app:
-    image: ioredis-app
-    container_name: ioredis-app
+  python-app:
+    image: python-app-sent
+    container_name: python-app-sent
     environment:
       - SENTINEL_HOST=redis-sentinel
       - SENTINEL_PORT=26379

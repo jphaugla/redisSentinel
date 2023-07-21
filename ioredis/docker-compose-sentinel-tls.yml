@@ -5,14 +5,15 @@ services:
     image: ioredis-app
     container_name: ioredis-app
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - SENTINEL_HOST=redis-sentinel
+      - SENTINEL_PORT=26379
+      - SENTINEL_MASTER=mymaster
       - REDIS_PASSWORD=jasonrocks
       - REDIS_USERNAME=jph
       - WRITE_JSON=false
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: sentinel_tls.Dockerfile
     ports:
       - '8080:8080'
     volumes:

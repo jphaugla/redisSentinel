@@ -2,7 +2,7 @@ import unittest
 
 from dotenv import load_dotenv
 
-from src.app.get_set_redis import TestRedis
+from app.get_set_redis import TestRedis
 
 load_dotenv()
 
