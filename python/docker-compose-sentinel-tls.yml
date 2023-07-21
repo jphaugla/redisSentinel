@@ -2,8 +2,8 @@ version: '3.9'
 
 services:
   python-app:
-    image: python-app
-    container_name: python-app
+    image: python-app-sent-tls
+    container_name: python-app-sent-tls
     environment:
       - SENTINEL_HOST=redis-sentinel
       - SENTINEL_PORT=26379

@@ -1,4 +1,4 @@
-# RediSentinel with node.js
+# RediSentinel with node.js and the ioredis client library
 
 
 ## Important Links/Notes

@@ -2,8 +2,8 @@ version: '3.9'
 
 services:
   python-app:
-    image: python-app
-    container_name: python-app
+    image: python-app-no-tls
+    container_name: python-app-no-tls
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
